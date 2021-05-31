@@ -10,6 +10,7 @@ fi
 for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     (
     export AWS_REGION_CLI="docker run --rm -v "$(get_config_dir $REGION):/root/.aws" amazon/aws-cli"
+    export AWS_REGION="$REGION"
     STDOUT_DIR="$AWS_PWD/results"
     export STDOUT_FILE="$STDOUT_DIR/$REGION.stdout"
     mkdir -p $STDOUT_DIR && touch $STDOUT_FILE

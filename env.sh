@@ -14,11 +14,15 @@ export AWS_PWD="$PWD/resources/$AWS_PROFILE_NAME/$AWS_APP_NAME"
 export aws="aws --profile $AWS_PROFILE_NAME"
 
 # Check app filter turned on.
+# Query instances which state is not terminated.
 export DISABLE_APP_FILTER="${DISABLE_APP_FILTER:-}"
 if [ -z "$DISABLE_APP_FILTER" ]; then
-    export APP_FILTER="--filter Name=tag-key,Values=$AWS_APP_NAME"
+    export APP_FILTER="--filters \
+        Name=tag-key,Values=$AWS_APP_NAME \
+        Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped"
 else
-    export APP_FILTER=""
+    export APP_FILTER="--filters \
+        Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped"
 fi
 
 # Check available regions:
