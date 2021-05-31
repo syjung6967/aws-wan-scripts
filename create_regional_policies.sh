@@ -36,7 +36,7 @@ EOF
         exit
     fi
     pinfo "Create policy for $AWS_APP_NAME on $REGION."
-    aws iam create-policy --policy-name $POLICY_NAME --policy-document "file://$POLICY_FILE" 2> /dev/null
+    $aws iam create-policy --policy-name $POLICY_NAME --policy-document "file://$POLICY_FILE" 2> /dev/null
     ) &
 done
 wait_bg

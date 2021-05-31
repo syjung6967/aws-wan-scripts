@@ -11,7 +11,7 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
         exit
     fi
     pinfo "Delete policy for $AWS_APP_NAME on $REGION."
-    aws iam delete-policy --policy-arn "arn:aws:iam::$AWS_ACCOUNT_ID:policy/$POLICY_NAME"
+    $aws iam delete-policy --policy-arn "arn:aws:iam::$AWS_ACCOUNT_ID:policy/$POLICY_NAME"
     ) &
 done
 wait_bg
