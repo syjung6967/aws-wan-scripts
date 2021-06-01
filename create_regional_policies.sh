@@ -3,16 +3,13 @@
 . env.sh
 
 # Create regional policies.
-mkdir -p "$AWS_PWD/policy"
 for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     (
-    POLICY_FILE="$AWS_PWD/policy/$REGION.json"
+    mkdir -p "$AWS_PWD/$REGION"
+    POLICY_FILE="$AWS_PWD/$REGION/policy.json"
     POLICY_NAME="$AWS_APP_NAME-$REGION"
-    if [ -f $POLICY_FILE ]; then
-        pinfo "Policy spec for $AWS_APP_NAME on $REGION already exists."
-    else
-        pinfo "Create policy spec for $AWS_APP_NAME on $REGION."
-        cat << EOF > $POLICY_FILE
+    pinfo "Overwrite policy spec for $AWS_APP_NAME on $REGION."
+    cat << EOF > $POLICY_FILE
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -29,7 +26,6 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     ]
 }
 EOF
-    fi
 
     if [ -n "$(policy_exist $POLICY_NAME)" ]; then
         pinfo "Policy for $AWS_APP_NAME on $REGION already exists."

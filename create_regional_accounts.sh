@@ -8,8 +8,11 @@ if [ -n "$(group_exist $AWS_APP_NAME)" ]; then
 else
     pinfo "Create app group for $AWS_APP_NAME."
     $aws iam create-group --group-name $AWS_APP_NAME
-    $aws iam attach-group-policy --policy-arn arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess --group-name $AWS_APP_NAME
+    for policy_arn in $AWS_POLICY_ARN; do
+        $aws iam attach-group-policy --policy-arn $policy_arn --group-name $AWS_APP_NAME &
+    done
 fi
+wait_bg
 
 # Create regional users and assign them to the app group.
 for REGION in ${AWS_AVAIL_REGIONS[@]}; do

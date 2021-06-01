@@ -13,39 +13,75 @@ export AWS_APP_NAME="${AWS_APP_NAME:-myapp}"
 export AWS_PWD="$PWD/resources/$AWS_PROFILE_NAME/$AWS_APP_NAME"
 export aws="aws --profile $AWS_PROFILE_NAME"
 
+# Policy.
+export AWS_POLICY_ARN="
+arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess
+"
+
+# TODO: per instance specification.
+export AWS_INSTANCE_MARKET_OPTIONS="MarketType=spot"
+export AWS_INSTANCE_TYPE="c5n.4xlarge"
+export AWS_BLOCK_DEVICE_MAPPINGS="DeviceName=/dev/xvda,Ebs={VolumeSize=8,VolumeType=gp3}"
+export AWS_USER_DATA=""
+
 # Check app filter turned on.
-# Query instances which state is not terminated.
 export DISABLE_APP_FILTER="${DISABLE_APP_FILTER:-}"
 if [ -z "$DISABLE_APP_FILTER" ]; then
-    export APP_FILTER="--filters \
-        Name=tag-key,Values=$AWS_APP_NAME \
-        Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped"
+    export APP_FILTER="Name=tag-key,Values=$AWS_APP_NAME"
 else
-    export APP_FILTER="--filters \
-        Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped"
+    export APP_FILTER=""
 fi
+# Query instances which state is not terminated.
+export INSTANCE_FILTER="Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped"
 
 # Check available regions:
 #   aws ec2 describe-regions | jq '.["Regions"][]["RegionName"]'
 export AWS_AVAIL_REGIONS=(
-    'eu-north-1' # Europe (Stockholm)
-    'ap-south-1' # Asia Pacific (Mumbai)
-    'eu-west-3' # Europe (Paris)
-    'eu-west-2' # Europe (London)
-    'eu-west-1' # Europe (Ireland)
-    'ap-northeast-3' # Asia Pacific (Osaka-Local)
-    'ap-northeast-2' # Asia Pacific (Seoul)
-    'ap-northeast-1' # Asia Pacific (Tokyo)
-    'sa-east-1' # South America (São Paulo)
-    'ca-central-1' # Canada (Central)
-    'ap-southeast-1' # Asia Pacific (Singapore)
-    'ap-southeast-2' # Asia Pacific (Sydney)
-    'eu-central-1' # Europe (Frankfurt)
+#   'eu-north-1' # Europe (Stockholm)
+#   'ap-south-1' # Asia Pacific (Mumbai)
+#   'eu-west-3' # Europe (Paris)
+#   'eu-west-2' # Europe (London)
+#   'eu-west-1' # Europe (Ireland)
+#   'ap-northeast-3' # Asia Pacific (Osaka-Local)
+#   'ap-northeast-2' # Asia Pacific (Seoul)
+#   'ap-northeast-1' # Asia Pacific (Tokyo)
+#   'sa-east-1' # South America (São Paulo)
+#   'ca-central-1' # Canada (Central)
+#   'ap-southeast-1' # Asia Pacific (Singapore)
+#   'ap-southeast-2' # Asia Pacific (Sydney)
+#   'eu-central-1' # Europe (Frankfurt)
     'us-east-1' # US East (N. Virginia)
     'us-east-2' # US East (Ohio)
     'us-west-1' # US West (N. California)
-    'us-west-2' # US West (Oregon)
+#   'us-west-2' # US West (Oregon)
 )
+
+# Find the current AMIs for...
+# aws ec2 describe-images --output text --owners amazon 099720109477 \
+# --query "max_by(Images[], &CreationDate).[ImageId, Name]" \
+# Amazon Linux 2:
+# --filters Name=name,Values=amzn2-ami-hvm-2.0.????????.?-x86_64-gp2 Name=state,Values=available
+# Ubuntu Server 16.04 LTS:
+# --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-???????? Name=state,Values=available
+# Ubuntu Server 18.04 LTS:
+# --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-???????? Name=state,Values=available
+# Ubuntu Server 20.04 LTS:
+# --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-???????? Name=state,Values=available
+#
+# Each command results:
+# ami-0d5eff06f840b45e9   amzn2-ami-hvm-2.0.20210427.0-x86_64-gp2
+# ami-0ee02acd56a52998e   ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20210429
+# ami-04751c628226b9b59   ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20210514
+# ami-0db6c6238a40c0681   ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20210518
+get_recent_aws_image_id() { # Image ID is different among regions.
+    # bionic
+    local ID=`$aws ec2 describe-images --output text \
+    --region $1 \
+    --owners amazon 099720109477 \
+    --query "max_by(Images[], &CreationDate).ImageId" \
+    --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-????????" "Name=state,Values=available"`
+    echo "$ID"
+}
 
 group_exist() {
     local E=`$aws iam get-group --group-name $1 --query "Group.GroupName" 2> /dev/null | tr -d \"`
