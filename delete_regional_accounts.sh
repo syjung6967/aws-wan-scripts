@@ -28,7 +28,7 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     if [ "$ACCESS_KEY_ID" != "null" ]; then
         $aws iam delete-access-key --user-name $USER_NAME --access-key-id $ACCESS_KEY_ID
     fi
-    POLICY_ARN=`$aws iam list-attached-user-policies --user-name $USER_NAME --query "AttachedPolicies[].PolicyArn | [0]" | tr -d \"`
+    POLICY_ARN=`$aws iam list-attached-user-policies --output text --user-name $USER_NAME --query "AttachedPolicies[].PolicyArn | [0]"`
     if [ "$POLICY_ARN" != "null" ]; then
         $aws iam detach-user-policy --user-name $USER_NAME --policy-arn $POLICY_ARN
     fi

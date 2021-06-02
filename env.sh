@@ -98,23 +98,23 @@ get_recent_aws_image_id() { # Image ID is different among regions.
 }
 
 group_exist() {
-    local E=`$aws iam get-group --group-name $1 --query "Group.GroupName" 2> /dev/null | tr -d \"`
+    local E=`$aws iam get-group --output text --group-name $1 --query "Group.GroupName" 2> /dev/null`
     if [ -n "$E" ]; then echo "yes"; fi
 }
 
 user_exist() {
-    local E=`$aws iam get-user --user-name $1 --query "User.UserName" 2> /dev/null | tr -d \"`
+    local E=`$aws iam get-user --output text --user-name $1 --query "User.UserName" 2> /dev/null`
     if [ -n "$E" ]; then echo "yes"; fi
 }
 
 policy_exist() {
     local POLICY_ARN="arn:aws:iam::$AWS_ACCOUNT_ID:policy/$1"
-    local E=`$aws iam get-policy --policy-arn $POLICY_ARN --query "Policy.PolicyName" 2> /dev/null | tr -d \"`
+    local E=`$aws iam get-policy --output text --policy-arn $POLICY_ARN --query "Policy.PolicyName" 2> /dev/null`
     if [ -n "$E" ]; then echo "yes"; fi
 }
 
 get_access_key_id() {
-    local ID=`$aws iam list-access-keys --user-name $1 --query "AccessKeyMetadata[].AccessKeyId | [0]" | tr -d \"`
+    local ID=`$aws iam list-access-keys --output text --user-name $1 --query "AccessKeyMetadata[].AccessKeyId | [0]"`
     echo "$ID"
 }
 

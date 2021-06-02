@@ -52,7 +52,7 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     for N_TRY in `seq 1 3`; do
         pinfo "Check AWS access key for account $USER_NAME ($N_TRY/3): $STATUS."
         if [ "$STATUS" == "Active" ]; then break; fi
-        STATUS=`$aws iam list-access-keys --user-name $USER_NAME --query "AccessKeyMetadata[0].Status" | tr -d \"`
+        STATUS=`$aws iam list-access-keys --output text --user-name $USER_NAME --query "AccessKeyMetadata[0].Status"`
     done
     ) &
 done
