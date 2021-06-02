@@ -28,6 +28,8 @@ case "$AWS_INSTANCE_AMI" in
         export AWS_INSTANCE_USER_NAME="ubuntu" ;;
     "Amazon Linux 2")
         export AWS_INSTANCE_USER_NAME="ec2-user" ;;
+    "Alpine Linux")
+        export AWS_INSTANCE_USER_NAME="alpine" ;;
     *)
         perror "Check \$AWS_INSTANCE_AMI (current value: $AWS_INSTANCE_AMI)" ;;
 esac
@@ -45,7 +47,7 @@ fi
 export INSTANCE_FILTER="Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped"
 
 # Check available regions:
-#   aws ec2 describe-regions | jq '.["Regions"][]["RegionName"]'
+#   aws ec2 describe-regions --query '["Regions"][]["RegionName"][]'
 export AWS_AVAIL_REGIONS=(
 #   'eu-north-1' # Europe (Stockholm)
 #   'ap-south-1' # Asia Pacific (Mumbai)
@@ -69,19 +71,27 @@ export AWS_AVAIL_REGIONS=(
 # Find the latest AMIs.
 get_recent_aws_image_id() { # Image ID is different among regions.
     local AMI_FILTER
+    local AMI_OWNER
     case "$AWS_INSTANCE_AMI" in
         "Ubuntu 16.04")
+            AMI_OWNER="099720109477"
             AMI_FILTER="Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-????????" ;;
         "Ubuntu 18.04")
+            AMI_OWNER="099720109477"
             AMI_FILTER="Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-????????" ;;
         "Ubuntu 20.04")
+            AMI_OWNER="099720109477"
             AMI_FILTER="Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-????????" ;;
         "Amazon Linux 2")
+            AMI_OWNER="amazon"
             AMI_FILTER="Name=name,Values=amzn2-ami-hvm-2.0.????????.?-x86_64-gp2" ;;
+        "Alpine Linux")
+            AMI_OWNER="538276064493"
+            AMI_FILTER="Name=name,Values=alpine-ami-3.??.?-x86_64-r?" ;;
     esac
     local ID=`$aws ec2 describe-images --output text \
     --region $1 \
-    --owners amazon 099720109477 \
+    --owners $AMI_OWNER \
     --query "max_by(Images[], &CreationDate).ImageId" \
     --filters $AMI_FILTER "Name=state,Values=available"`
     echo "$ID"
