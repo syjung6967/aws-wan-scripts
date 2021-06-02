@@ -7,8 +7,7 @@ AWS_REGION="${AWS_REGION:-default}"
 STDOUT_FILE="${STDOUT_FILE:-/dev/null}"
 
 text=$(cmds/ec2-describe-key-pairs.sh)
-NUM_KEYS=`jq length <<< $text`
-if [ "$NUM_KEYS" -eq 0 ]; then
+if [ "$text" == "[]" ]; then
     pinfo "There is no key on $AWS_REGION!"
     cmds/ec2-create-key-pair.sh
 else
@@ -28,7 +27,7 @@ if [ "$text" == "[]" ]; then
     pinfo "Default Subnets on $AWS_REGION do not exist; Create the default subnets."
     text=`$AWS_REGION_CLI ec2 describe-availability-zones --query "AvailabilityZones[].ZoneName"`
     # Create subnets sequentially to prevent from reaching max retries 2.
-    for zone in `jq '.[]' <<< $text | tr -d \"`; do
+    for zone in $(JSON '.[]' "$text"); do
         $AWS_REGION_CLI ec2 create-default-subnet --availability-zone "$zone" | tee -a $STDOUT_FILE
     done
 else

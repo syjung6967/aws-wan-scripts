@@ -55,3 +55,7 @@ wait_bg() {
         wait ${job}
     done
 }
+
+JSON() {
+    echo `jq -r "$1" <<< "$2"`
+}

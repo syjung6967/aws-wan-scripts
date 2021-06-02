@@ -8,8 +8,7 @@ STDOUT_FILE="${STDOUT_FILE:-/dev/null}"
 
 text=$(cmds/ec2-describe-key-pairs.sh)
 KEY_NAME="$AWS_APP_NAME-$AWS_REGION"
-NUM_KEYS=`jq length <<< $text`
-if [ $NUM_KEYS -gt 0 ]; then
+if [ "$text" != "[]" ]; then
     pinfo "Key $KEY_NAME already exists!"
     exit
 fi
@@ -21,7 +20,8 @@ $AWS_REGION_CLI ec2 create-key-pair \
 --tag-specifications "ResourceType=key-pair,Tags=[{Key=$AWS_APP_NAME,Value=True}]" \
 --key-name "$KEY_NAME"
 `
-PRIVATE_KEY=`jq '.["KeyMaterial"]' <<< $text | tr -d \"`
+PRIVATE_KEY=$(JSON '.["KeyMaterial"]' "$text")
+rm -f "$AWS_PWD/keys/$AWS_REGION.pem"
 echo -e $PRIVATE_KEY > "$AWS_PWD/keys/$AWS_REGION.pem"
 chmod 400 "$AWS_PWD/keys/$AWS_REGION.pem" # Avoid permission issue.
-pinfo `jq '.["KeyPairId"]' <<< $text | tr -d \"`
+pinfo $(JSON '.["KeyPairId"]' "$text")

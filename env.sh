@@ -118,10 +118,6 @@ get_access_key_id() {
     echo "$ID"
 }
 
-get_access_key_file() {
-    echo "$AWS_PWD/$1/aws-access-key.json"
-}
-
 get_config_dir() {
     echo "$AWS_PWD/$1/.aws"
 }

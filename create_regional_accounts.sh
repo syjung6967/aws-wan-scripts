@@ -24,7 +24,6 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     USER_NAME="$AWS_APP_NAME-$REGION"
     #PASSWORD=$USER_NAME-your-secret-key
     POLICY_NAME="$AWS_APP_NAME-$REGION"
-    ACCESS_KEY_FILE=$(get_access_key_file $REGION)
     if [ -n "$(user_exist $USER_NAME)" ]; then
         pinfo "Account $USER_NAME already exists."
         exit
@@ -35,20 +34,10 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     #aws iam create-login-profile --user-name $USER_NAME --password $PASSWORD --no-password-reset-required
     # "aws iam create-access-key" does not have query option.
     pinfo "Export AWS access key for account $USER_NAME."
-    $aws iam create-access-key --user-name $USER_NAME > $ACCESS_KEY_FILE
-    # {
-    #     "AccessKey": {
-    #         "UserName": "myapp-ap-northeast-1",
-    #         "AccessKeyId": "XXXXXXXXXXXXXXXXXXXX",
-    #         "Status": "Active",
-    #         "SecretAccessKey": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    #         "CreateDate": "2021-05-31T11:40:03Z"
-    #     }
-    # }
-    ACCESS_KEY_JSON=`cat $ACCESS_KEY_FILE`
-    ACCESS_KEY_ID=`jq '.AccessKey["AccessKeyId"]' <<< $ACCESS_KEY_JSON | tr -d \"`
-    SECRET_ACCESS_KEY=`jq '.AccessKey["SecretAccessKey"]' <<< $ACCESS_KEY_JSON | tr -d \"`
-    STATUS=`jq '.AccessKey["Status"]' <<< $ACCESS_KEY_JSON | tr -d \"`
+    text=`$aws iam create-access-key --user-name $USER_NAME`
+    ACCESS_KEY_ID=$(JSON '.AccessKey["AccessKeyId"]' "$text")
+    SECRET_ACCESS_KEY=$(JSON '.AccessKey["SecretAccessKey"]' "$text")
+    STATUS=$(JSON '.AccessKey["Status"]' "$text")
     echo -e \
     "[profile default]" \
     "\nregion = $REGION" \
