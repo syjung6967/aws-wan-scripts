@@ -2,6 +2,10 @@
 
 . env.sh
 
+if [ $# -ne 0 ]; then
+    perror "Usage: $0"
+fi
+
 # Create regional policies.
 for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     (

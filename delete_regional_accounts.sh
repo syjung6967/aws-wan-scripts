@@ -2,6 +2,10 @@
 
 . env.sh
 
+if [ $# -ne 0 ]; then
+    perror "Usage: $0"
+fi
+
 # Check the app group exists.
 E_GROUP="$(group_exist $AWS_APP_NAME)"
 if [ -z "$E_GROUP" ]; then

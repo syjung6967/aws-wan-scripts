@@ -23,4 +23,5 @@ $AWS_REGION_CLI ec2 create-key-pair \
 `
 PRIVATE_KEY=`jq '.["KeyMaterial"]' <<< $text | tr -d \"`
 echo -e $PRIVATE_KEY > "$AWS_PWD/keys/$AWS_REGION.pem"
+chmod 400 "$AWS_PWD/keys/$AWS_REGION.pem" # Avoid permission issue.
 pinfo `jq '.["KeyPairId"]' <<< $text | tr -d \"`

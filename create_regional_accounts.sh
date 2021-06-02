@@ -2,6 +2,10 @@
 
 . env.sh
 
+if [ $# -ne 0 ]; then
+    perror "Usage: $0"
+fi
+
 # Create app group.
 if [ -n "$(group_exist $AWS_APP_NAME)" ]; then
     pinfo "App group for $AWS_APP_NAME already exists."

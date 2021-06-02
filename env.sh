@@ -19,8 +19,18 @@ arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess
 "
 
 # TODO: per instance specification.
-export AWS_INSTANCE_MARKET_OPTIONS="MarketType=spot"
-export AWS_INSTANCE_TYPE="m5.2xlarge" #"t3.nano"
+export AWS_INSTANCE_MARKET_OPTIONS="${AWS_INSTANCE_MARKET_OPTIONS:-MarketType=spot}"
+export AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-m5.2xlarge}" #"t3.nano"
+export AWS_INSTANCE_AMI="${AWS_INSTANCE_AMI:-Ubuntu 18.04}"
+# Check user name for instance with the AMI provider.
+case "$AWS_INSTANCE_AMI" in
+    "Ubuntu 16.04" | "Ubuntu 18.04" | "Ubuntu 20.04")
+        export AWS_INSTANCE_USER_NAME="ubuntu" ;;
+    "Amazon Linux 2")
+        export AWS_INSTANCE_USER_NAME="ec2-user" ;;
+    *)
+        perror "Check \$AWS_INSTANCE_AMI (current value: $AWS_INSTANCE_AMI)" ;;
+esac
 export AWS_BLOCK_DEVICE_MAPPINGS="DeviceName=/dev/xvda,Ebs={VolumeSize=8,VolumeType=gp3}"
 export AWS_USER_DATA=""
 
@@ -56,30 +66,24 @@ export AWS_AVAIL_REGIONS=(
 #   'us-west-2' # US West (Oregon)
 )
 
-# Find the current AMIs for...
-# aws ec2 describe-images --output text --owners amazon 099720109477 \
-# --query "max_by(Images[], &CreationDate).[ImageId, Name]" \
-# Amazon Linux 2:
-# --filters Name=name,Values=amzn2-ami-hvm-2.0.????????.?-x86_64-gp2 Name=state,Values=available
-# Ubuntu Server 16.04 LTS:
-# --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-???????? Name=state,Values=available
-# Ubuntu Server 18.04 LTS:
-# --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-???????? Name=state,Values=available
-# Ubuntu Server 20.04 LTS:
-# --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-???????? Name=state,Values=available
-#
-# Each command results:
-# ami-0d5eff06f840b45e9   amzn2-ami-hvm-2.0.20210427.0-x86_64-gp2
-# ami-0ee02acd56a52998e   ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20210429
-# ami-04751c628226b9b59   ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20210514
-# ami-0db6c6238a40c0681   ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20210518
+# Find the latest AMIs.
 get_recent_aws_image_id() { # Image ID is different among regions.
-    # bionic
+    local AMI_FILTER
+    case "$AWS_INSTANCE_AMI" in
+        "Ubuntu 16.04")
+            AMI_FILTER="Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-????????" ;;
+        "Ubuntu 18.04")
+            AMI_FILTER="Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-????????" ;;
+        "Ubuntu 20.04")
+            AMI_FILTER="Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-????????" ;;
+        "Amazon Linux 2")
+            AMI_FILTER="Name=name,Values=amzn2-ami-hvm-2.0.????????.?-x86_64-gp2" ;;
+    esac
     local ID=`$aws ec2 describe-images --output text \
     --region $1 \
     --owners amazon 099720109477 \
     --query "max_by(Images[], &CreationDate).ImageId" \
-    --filters "Name=name,Values=ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-????????" "Name=state,Values=available"`
+    --filters $AMI_FILTER "Name=state,Values=available"`
     echo "$ID"
 }
 
