@@ -14,7 +14,13 @@ if [ $NUM_KEYS -gt 0 ]; then
     exit
 fi
 
+pinfo "Generate key on $AWS_REGION."
+mkdir -p "$AWS_PWD/keys"
+text=`
 $AWS_REGION_CLI ec2 create-key-pair \
 --tag-specifications "ResourceType=key-pair,Tags=[{Key=$AWS_APP_NAME,Value=True}]" \
---key-name "$KEY_NAME" \
-| tee -a $STDOUT_FILE
+--key-name "$KEY_NAME"
+`
+PRIVATE_KEY=`jq '.["KeyMaterial"]' <<< $text | tr -d \"`
+echo -e $PRIVATE_KEY > "$AWS_PWD/keys/$AWS_REGION.pem"
+pinfo `jq '.["KeyPairId"]' <<< $text | tr -d \"`

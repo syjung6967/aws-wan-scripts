@@ -20,7 +20,7 @@ arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess
 
 # TODO: per instance specification.
 export AWS_INSTANCE_MARKET_OPTIONS="MarketType=spot"
-export AWS_INSTANCE_TYPE="c5n.4xlarge"
+export AWS_INSTANCE_TYPE="m5.2xlarge" #"t3.nano"
 export AWS_BLOCK_DEVICE_MAPPINGS="DeviceName=/dev/xvda,Ebs={VolumeSize=8,VolumeType=gp3}"
 export AWS_USER_DATA=""
 

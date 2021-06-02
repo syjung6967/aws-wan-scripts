@@ -1,7 +1,10 @@
+Default VPC and subnets are chosen for launching instances.
+
 Initial app setup:
 ```sh
-./create_regional_policies.sh
-./create_regional_accounts.sh
+./create_regional_policies.sh # Create regional policies.
+./create_regional_accounts.sh # Create regional accounts.
+./execute_command.sh cmds/init_region.sh # Create app keys and default VPC and subnets.
 ```
 
 Scripts are on cmds/ directory.
@@ -28,3 +31,5 @@ Clean app setup:
 TrobleShooting:
 * Q. Not enough credentials for running spot instances?
 * A. Run <code>aws iam create-service-linked-role --aws-service-name spot.amazonaws.com</code> on host before app setup.
+* Q. How to handle MaxSpotInstanceCountExceeded error?
+* A. Each instance type has some limit of its spot instance counts to restrict abuse. For more information, See <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-limits.html>.
