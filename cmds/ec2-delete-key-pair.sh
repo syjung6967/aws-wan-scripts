@@ -14,7 +14,6 @@ fi
 
 for key_id in $(JSON '.[]["KeyPairId"]' "$text"); do
     pinfo "Delete $key_id on $AWS_REGION."
-exit
     # Output is None
     $AWS_REGION_CLI ec2 delete-key-pair --key-pair-id $key_id
 done

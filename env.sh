@@ -20,7 +20,7 @@ arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess
 
 # TODO: per instance specification.
 export AWS_INSTANCE_MARKET_OPTIONS="${AWS_INSTANCE_MARKET_OPTIONS:-MarketType=spot}"
-export AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-m5.2xlarge}" #"t3.nano"
+export AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-c5n.4xlarge}" #"t3.nano, m5.2xlarge c5n.4xlarge"
 export AWS_INSTANCE_AMI="${AWS_INSTANCE_AMI:-Ubuntu 18.04}"
 # Check user name for instance with the AMI provider.
 case "$AWS_INSTANCE_AMI" in
@@ -55,15 +55,15 @@ export AWS_AVAIL_REGIONS=(
 #   'eu-west-2' # Europe (London)
 #   'eu-west-1' # Europe (Ireland)
 #   'ap-northeast-3' # Asia Pacific (Osaka-Local)
-#   'ap-northeast-2' # Asia Pacific (Seoul)
+    'ap-northeast-2' # Asia Pacific (Seoul)
 #   'ap-northeast-1' # Asia Pacific (Tokyo)
 #   'sa-east-1' # South America (São Paulo)
 #   'ca-central-1' # Canada (Central)
-#   'ap-southeast-1' # Asia Pacific (Singapore)
+    'ap-southeast-1' # Asia Pacific (Singapore)
 #   'ap-southeast-2' # Asia Pacific (Sydney)
 #   'eu-central-1' # Europe (Frankfurt)
     'us-east-1' # US East (N. Virginia)
-    'us-east-2' # US East (Ohio)
+#   'us-east-2' # US East (Ohio)
     'us-west-1' # US West (N. California)
 #   'us-west-2' # US West (Oregon)
 )
