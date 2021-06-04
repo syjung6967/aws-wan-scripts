@@ -7,11 +7,17 @@
 #https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_manage.html#id_users_deleting_cli
 #https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_manage_delete.html
 
+# Mandatory information.
 export AWS_ACCOUNT_ID="${AWS_ACCOUNT_ID:-}" # It differs to AWS_ACCESS_KEY_ID.
 export AWS_PROFILE_NAME="${AWS_PROFILE_NAME:-default}"
 export AWS_APP_NAME="${AWS_APP_NAME:-myapp}"
+if [ -z "$AWS_ACCOUNT_ID" ]; then
+    perror "Check your 12-digit AWS account ID (AWS_ACCOUNT_ID)!"
+fi
+
+# Host setup.
 export AWS_PWD="$PWD/resources/$AWS_PROFILE_NAME/$AWS_APP_NAME"
-export aws="aws --profile $AWS_PROFILE_NAME"
+export aws="docker run --rm -v $HOME/.aws:/root/.aws amazon/aws-cli --profile $AWS_PROFILE_NAME"
 
 # Policy.
 export AWS_POLICY_ARN="
@@ -124,11 +130,3 @@ get_access_key_id() {
 get_config_dir() {
     echo "$AWS_PWD/$1/.aws"
 }
-
-if [ -z "$AWS_ACCOUNT_ID" ]; then
-    perror "Check your 12-digit AWS account ID (AWS_ACCOUNT_ID)!"
-fi
-
-if [ -z "$AWS_PROFILE_NAME" ]; then
-    perror "Check your AWS profile name (AWS_PROFILE_NAME)!"
-fi

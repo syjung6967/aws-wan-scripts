@@ -6,9 +6,39 @@ Default VPC and subnets are chosen for launching instances.
 # Similar projects
 * [vagrant-aws](https://github.com/mitchellh/vagrant-aws): vagrant plugin for managing AWS-compatible box
 
-Package requirements:
+# Package requirements
+For host (Ubuntu):
+* **docker** for parallelizing regional AWS CLI commands including host commands.
 * **jq** for formatting AWS CLI output.
 * **sshfs** for mounting instance filesystems.
+
+```sh
+sudo apt install docker jq sshfs
+sudo systemctl enable --now docker
+```
+
+For instance:
+* None (but you can install additional packages when launching instances by using `$AWS_USER_DATA` in env.sh)
+
+## Docker setup
+Add current user into docker group:
+
+```sh
+sudo usermod -aG docker $USER
+sudo loginctl terminate-user $USER # WARNING: your all login sessions are terminated.
+
+#
+# Login again.
+#
+
+docker run hello-world # Check the user has permission for docker.
+```
+
+Get the latest docker image for the AWS CLI:
+
+```sh
+docker pull amazon/aws-cli
+```
 
 # Initial app setup
 Check env.sh before executing setup scripts.
