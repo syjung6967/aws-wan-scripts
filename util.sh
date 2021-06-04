@@ -50,12 +50,19 @@ pinfo() {
     echo "${TF_CYAN}$1${T_RESET}"
 }
 
+# Wait background jobs.
 wait_bg() {
     for job in `jobs -p`; do
         wait ${job}
     done
 }
 
+# Return raw JSON.
 JSON() {
     echo `jq -r "$1" <<< "$2"`
+}
+
+# Return formatted JSON.
+JSON_FORMAT() {
+    echo `jq "$1" <<< "$2"`
 }

@@ -14,5 +14,6 @@ fi
 INSTANCE_ID_LIST=$(JSON '.[]["InstanceId"]' "$text")
 ZONE_LIST=$(JSON '.[]["Placement"]["AvailabilityZone"]' "$text")
 pinfo "Terminate Instances: $INSTANCE_ID_LIST ($ZONE_LIST)"
+pinfo "WARNING: Mount points are disconnected."
 $AWS_REGION_CLI ec2 terminate-instances --instance-ids $INSTANCE_ID_LIST \
 | tee -a $STDOUT_FILE

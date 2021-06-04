@@ -20,7 +20,7 @@ $AWS_REGION_CLI ec2 create-key-pair \
 --tag-specifications "ResourceType=key-pair,Tags=[{Key=$AWS_APP_NAME,Value=True}]" \
 --key-name "$KEY_NAME"
 `
-PRIVATE_KEY=$(JSON '.["KeyMaterial"]' "$text")
+PRIVATE_KEY=$(JSON_FORMAT '.["KeyMaterial"]' "$text" | tr -d \")
 rm -f "$AWS_PWD/keys/$AWS_REGION.pem"
 echo -e $PRIVATE_KEY > "$AWS_PWD/keys/$AWS_REGION.pem"
 chmod 400 "$AWS_PWD/keys/$AWS_REGION.pem" # Avoid permission issue.

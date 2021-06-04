@@ -57,3 +57,5 @@ for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     ) &
 done
 wait_bg
+
+pinfo "For AWS-side complete account setup, wait about 10 seconds."

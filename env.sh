@@ -20,7 +20,10 @@ arn:aws:iam::aws:policy/AWSBillingReadOnlyAccess
 
 # TODO: per instance specification.
 export AWS_INSTANCE_MARKET_OPTIONS="${AWS_INSTANCE_MARKET_OPTIONS:-MarketType=spot}"
-export AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-c5n.4xlarge}" #"t3.nano, m5.2xlarge c5n.4xlarge"
+# To check instance type within you budget, See https://instances.vantage.sh/
+# If the image adopts Ubuntu, more than 1 GiB memory instance is preferable.
+# (See minimal requirements from https://ubuntu.com/server/docs/installation)
+export AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-t3a.micro}"
 export AWS_INSTANCE_AMI="${AWS_INSTANCE_AMI:-Ubuntu 18.04}"
 # Check user name for instance with the AMI provider.
 case "$AWS_INSTANCE_AMI" in

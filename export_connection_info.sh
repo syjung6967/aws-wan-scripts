@@ -27,10 +27,10 @@ wait_bg
 IP_LIST_FILE="$AWS_PWD/ip_list.txt"
 pinfo "Overwrite IP list file $IP_LIST_FILE."
 rm -f $IP_LIST_FILE
-echo -e "Availability zone\tInstance ID\tPrivate IP\tPublic IP\tEntry point" > "$IP_LIST_FILE"
+echo -e "Region\tAvailability zone\tInstance ID\tPrivate IP\tPublic IP\tEntry point" > "$IP_LIST_FILE"
 for REGION in ${AWS_AVAIL_REGIONS[@]}; do
     awk '
-    { printf "%s\t%s\t%s\t%s\tssh -i '"$AWS_PWD/keys/$REGION.pem $AWS_INSTANCE_USER_NAME@"'%s\n", $1, $2, $3, $4, $4 }
+    { printf "'"$REGION"'\t%s\t%s\t%s\t%s\tssh -i '"$AWS_PWD/keys/$REGION.pem $AWS_INSTANCE_USER_NAME@"'%s\n", $1, $2, $3, $4, $4 }
     ' "$TMP_DIR/$REGION" >> "$IP_LIST_FILE"
 done
 
