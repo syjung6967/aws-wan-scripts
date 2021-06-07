@@ -3,6 +3,9 @@ Implemented by bash scripts using AWS CLI invoked on docker.
 
 Default VPC and subnets are chosen for launching instances.
 
+Launch your instances accross worldwide regions within 20 seconds.
+(For initial environment setup, it takes about one minute)
+
 # Similar projects
 * [vagrant-aws](https://github.com/mitchellh/vagrant-aws): vagrant plugin for managing AWS-compatible box
 
@@ -58,7 +61,7 @@ Check env.sh before executing setup scripts.
 * cmds: scripts for executing by each regional credentials.
 * resources: root management directory. Subdirectories are created when running setup scripts.
   * `$AWS_PROFILE_NAME`: AWS account profile name for admin. (default: "default")
-    * `$AWS_APP_NAME` (abosolute path: `$AWS_PWD`): namespace for the app. (default: "myapp")
+    * `$AWS_APP_NAME` (absolute path: `$AWS_PWD`): namespace for the app. (default: "myapp")
       * keys: private key files (*.pem) for each region.
       * results: standard output for each regional scripts.
       * `$REGION`: AWS region name. (not alias such as Virginia)
@@ -106,3 +109,4 @@ DISABLE_APP_FILTER=1 ./execute_command.sh cmds/stop-all-instances.sh
 * Reduce manual procedures.
 * Add per-instance commands.
 * Automatically delete unused files.
+* Add LICENSE.

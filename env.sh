@@ -31,18 +31,30 @@ export AWS_INSTANCE_MARKET_OPTIONS="${AWS_INSTANCE_MARKET_OPTIONS:-MarketType=sp
 # (See minimal requirements from https://ubuntu.com/server/docs/installation)
 export AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-t3a.micro}"
 export AWS_INSTANCE_AMI="${AWS_INSTANCE_AMI:-Ubuntu 18.04}"
+export AWS_INSTANCE_ROOT_DEV="/dev/xvda"
 # Check user name for instance with the AMI provider.
 case "$AWS_INSTANCE_AMI" in
     "Ubuntu 16.04" | "Ubuntu 18.04" | "Ubuntu 20.04")
+        export AWS_INSTANCE_STORAGE_SIZE="8"
         export AWS_INSTANCE_USER_NAME="ubuntu" ;;
     "Amazon Linux 2")
+        export AWS_INSTANCE_STORAGE_SIZE="8"
         export AWS_INSTANCE_USER_NAME="ec2-user" ;;
     "Alpine Linux")
+        export AWS_INSTANCE_STORAGE_SIZE="1"
         export AWS_INSTANCE_USER_NAME="alpine" ;;
+    "FreeBSD") # Initialization is too slow. (about 3 minutes on c5.2xlarge)
+        export AWS_INSTANCE_ROOT_DEV="/dev/sda1"
+        export AWS_INSTANCE_STORAGE_SIZE="10"
+        export AWS_INSTANCE_USER_NAME="ec2-user" ;;
+    "OpenBSD") # There is no official image. (there is a deprecated builder ajacoutot/aws-openbsd)
+        export AWS_INSTANCE_ROOT_DEV="/dev/sda1"
+        export AWS_INSTANCE_STORAGE_SIZE="1"
+        export AWS_INSTANCE_USER_NAME="ec2-user" ;;
     *)
         perror "Check \$AWS_INSTANCE_AMI (current value: $AWS_INSTANCE_AMI)" ;;
 esac
-export AWS_BLOCK_DEVICE_MAPPINGS="DeviceName=/dev/xvda,Ebs={VolumeSize=8,VolumeType=gp3}"
+export AWS_BLOCK_DEVICE_MAPPINGS="DeviceName=$AWS_INSTANCE_ROOT_DEV,Ebs={VolumeSize=$AWS_INSTANCE_STORAGE_SIZE,VolumeType=gp3}"
 export AWS_USER_DATA=""
 
 # Check app filter turned on.
@@ -78,6 +90,7 @@ export AWS_AVAIL_REGIONS=(
 )
 
 # Find the latest AMIs.
+# TODO: save the image list locally in advance to reduce launching time.
 get_recent_aws_image_id() { # Image ID is different among regions.
     local AMI_FILTER
     local AMI_OWNER
@@ -97,6 +110,12 @@ get_recent_aws_image_id() { # Image ID is different among regions.
         "Alpine Linux")
             AMI_OWNER="538276064493"
             AMI_FILTER="Name=name,Values=alpine-ami-3.??.?-x86_64-r?" ;;
+        "FreeBSD")
+            AMI_OWNER="782442783595"
+            AMI_FILTER="Name=name,Values=FreeBSD???.?-RELEASE-amd64" ;;
+        "OpenBSD")
+            AMI_OWNER="xxxxxxxxxxxx"
+            AMI_FILTER="Name=name,Values=OpenBSD*" ;;
     esac
     local ID=`$aws ec2 describe-images --output text \
     --region $1 \
