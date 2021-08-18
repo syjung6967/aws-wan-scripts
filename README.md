@@ -108,5 +108,7 @@ DISABLE_APP_FILTER=1 ./execute_command.sh cmds/stop-all-instances.sh
 # TODO
 * Reduce manual procedures.
 * Add per-instance commands.
-* Automatically delete unused files.
+* Support hybrid use between spot and on-demand instances.
+* Support to specify sub zones.
+* Automatically delete files on obsolete containers.
 * Add LICENSE.
