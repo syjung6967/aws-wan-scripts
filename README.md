@@ -111,4 +111,3 @@ DISABLE_APP_FILTER=1 ./execute_command.sh cmds/stop-all-instances.sh
 * Support hybrid use between spot and on-demand instances.
 * Support to specify sub zones.
 * Automatically delete files on obsolete containers.
-* Add LICENSE.
